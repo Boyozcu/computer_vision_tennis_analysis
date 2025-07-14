@@ -1,56 +1,56 @@
-# Tenis Maçı Analiz Aracı
+# Tennis Match Analysis Tool
 
-Bu Python programı, tenis maç videolarını izleyip analiz eder. Kortu, oyuncuları ve topu bularak hareketlerini takip eder. Sonuçları hem videonun üzerinde hem de kuşbakışı bir kort çiziminde gösterir.
+This Python program watches and analyzes tennis match videos. It detects the court, players, and ball, then tracks their movements. Results are displayed both on the video and on a bird's-eye court sketch.
 
-## Ne Yapar?
+## What Does It Do?
 
-*   **Kortu Bulur**: Videodaki tenis kortunu otomatik olarak tanır.
-*   **Oyuncuları Tanır**: Oyuncuları bulur ve P1, P2 olarak etiketler.
-*   **Topu İzler**: Topu tespit eder ve hareketlerini takip eder.
-*   **Kuşbakışı Gösterir**: Oyuncu ve top konumlarını 2D bir kort çiziminde gösterir.
-*   **Tekrarları Algılar**: Videodaki tekrar sahnelerini fark edip analizi duraklatır.
-*   **Video Kaydeder**: Analiz edilmiş videoyu ve kuşbakışı çizimi ayrı video dosyaları olarak kaydeder.
+*   **Detects the Court**: Automatically recognizes the tennis court in the video.
+*   **Identifies Players**: Finds players and labels them as P1 and P2.
+*   **Tracks the Ball**: Detects the ball and tracks its movements.
+*   **Bird's-Eye View**: Shows player and ball positions on a 2D court sketch.
+*   **Detects Replays**: Recognizes replay scenes in the video and pauses analysis.
+*   **Saves Videos**: Saves the analyzed video and the bird's-eye sketch as separate video files.
 
-## Kullanılan Yöntemler
+## Methods Used
 
-Bu projede, tenis maçı analizi için aşağıdaki klasik bilgisayar görü ve görüntü işleme teknikleri kullanılmıştır:
+This project uses the following classical computer vision and image processing techniques for tennis match analysis:
 
-*   **Renk Segmentasyonu (HSV Tabanlı)**: Kort alanını (özellikle mavi rengi) videoda belirginleştirmek ve maskelemek için HSV renk uzayı kullanılmıştır.
-*   **Kontur Analizi**:
-    *   Kortun köşelerini, oyuncu ve top adaylarını tespit etmek için `cv2.findContours` ve ilgili fonksiyonlar (`cv2.contourArea`, `cv2.boundingRect`, `cv2.approxPolyDP`, `cv2.convexHull`) kullanılmıştır.
-    *   Tespit edilen konturların alanı, en-boy oranı, doluluk (solidity), dairesellik gibi geometrik özellikleri, nesneleri sınıflandırmak ve filtrelemek için değerlendirilmiştir.
-*   **Arka Plan Çıkarma (MOG2)**: Videodaki hareketli nesneleri (oyuncular ve top) statik arka plandan ayırmak için `cv2.createBackgroundSubtractorMOG2` algoritması kullanılmıştır.
-*   **Homografi ile Perspektif Dönüşümü**: Kortun orijinal videodaki perspektif görünümünü, 2D bir kuşbakışı haritaya dönüştürmek için homografi matrisi hesaplanmış ve `cv2.perspectiveTransform` uygulanmıştır.
-*   **Optik Akış (Lucas-Kanade)**: Topun kareler arası hareketini takip etmek ve kısa süreli tespit kayıplarında konumunu tahmin etmek için `cv2.calcOpticalFlowPyrLK` yöntemi kullanılmıştır.
-*   **Kalman Filtresi**: Topun hareketini modellemek, ölçümlerdeki gürültüyü filtrelemek ve daha yumuşak bir yörünge elde etmek amacıyla top takibinde kullanılmıştır.
-*   **Morfolojik İşlemler**: Gürültüyü azaltmak, nesne sınırlarını düzeltmek ve istenmeyen küçük parçaları temizlemek için `cv2.morphologyEx` (açma ve kapama gibi) operasyonları uygulanmıştır.
-*   **Kural Tabanlı Filtreleme ve Skorlama**:
-    *   Tespit edilen oyuncu ve top adaylarının geçerliliğini doğrulamak için belirli alan, boyut, en-boy oranı aralıkları gibi kurallar tanımlanmıştır.
-    *   Top adayları için, oyunculara yakınlık, kort çizgilerine yakınlık, yasak bölgeler gibi faktörlere dayalı bir güven skoru hesaplanarak en olası top tespiti seçilmiştir.
+*   **Color Segmentation (HSV-Based)**: Uses HSV color space to highlight and mask the court area (especially blue color) in the video.
+*   **Contour Analysis**:
+    *   Detects court corners, player, and ball candidates using `cv2.findContours` and related functions (`cv2.contourArea`, `cv2.boundingRect`, `cv2.approxPolyDP`, `cv2.convexHull`).
+    *   Geometric features such as area, aspect ratio, solidity, and circularity of detected contours are evaluated to classify and filter objects.
+*   **Background Subtraction (MOG2)**: Uses `cv2.createBackgroundSubtractorMOG2` to separate moving objects (players and ball) from the static background.
+*   **Homography for Perspective Transformation**: Calculates a homography matrix and applies `cv2.perspectiveTransform` to convert the court's perspective view in the original video to a 2D bird's-eye map.
+*   **Optical Flow (Lucas-Kanade)**: Uses `cv2.calcOpticalFlowPyrLK` to track the ball's movement between frames and estimate its position during short detection losses.
+*   **Kalman Filter**: Models the ball's movement, filters noise in measurements, and provides a smoother trajectory for ball tracking.
+*   **Morphological Operations**: Applies `cv2.morphologyEx` (such as opening and closing) to reduce noise, refine object boundaries, and clean up unwanted small fragments.
+*   **Rule-Based Filtering and Scoring**:
+    *   Defines rules for area, size, aspect ratio ranges to validate detected player and ball candidates.
+    *   For ball candidates, calculates a confidence score based on proximity to players, court lines, forbidden zones, etc., and selects the most likely ball detection.
 
-## Gerekenler
+## Requirements
 
 *   Python 3
 *   OpenCV (`cv2`)
 *   NumPy (`numpy`)
 
-## Kurulum
+## Installation
 
-Gerekli programları yüklemek için:
+To install the required packages:
 ```bash
 pip install opencv-python numpy
 ```
 
-## Nasıl Kullanılır?
+## How to Use
 
-1.  `tennis_analyse.py` dosyasındaki `VIDEO_PATH` değişkenini analiz etmek istediğiniz videonun (`.mp4`) adıyla güncelleyin. (Varsayılan: "tennis.mp4")
-2.  Programı çalıştırın:
+1.  Update the `VIDEO_PATH` variable in `tennis_analyse.py` with the name of the video (`.mp4`) you want to analyze. (Default: "tennis.mp4")
+2.  Run the program:
     ```bash
     python tennis_analyse.py
     ```
 
-Analiz bitince, `output/` klasöründe iki video dosyası oluşur:
-*   `full_analyzed.mp4`: Üzerinde analizlerin olduğu ana video.
-*   `full_sketch.mp4`: Kuşbakışı kort çizimi videosu.
+After analysis, two video files will be created in the `output/` folder:
+*   `full_analyzed.mp4`: Main video with analysis overlays.
+*   `full_sketch.mp4`: Bird's-eye court sketch video.
 
-Analiz sırasında canlı önizlemeyi görebilirsiniz. `q` tuşuna basarak işlemi durdurabilirsiniz.
+You can see a live preview during analysis. Press the `q` key to stop the process.
